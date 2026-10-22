@@ -17,7 +17,7 @@
 ## Still required before submitting
 
 1. **GitHub published:** https://github.com/DrBlitz/clinic-access-navigator — 123 source and documentation files published on October 22, 2026. README and MIT LICENSE were fetched back successfully. Final signed-out review remains advisable.
-2. **Video:** a 2:17 captioned technical demonstration is prepared, using captured local MCP requests/responses. It has no voiceover and is not a browser screen recording. Review it, upload Public to YouTube/Vimeo, and test playback signed out. Public upload remains pending.
+2. **Video:** a 2:17 captioned technical demonstration is prepared, using captured local MCP requests/responses. It has no voiceover and is not a browser screen recording. The builder supplied the uploaded video URL: https://youtu.be/SDMWsx-BbPA. Automated retrieval was unavailable; confirm Public visibility, uploaded runtime and playback in a signed-out window before submission.
 3. **Product feedback:** confirm your personal reuse assessment. Include only services actually used; keep AWS runtime claims pending until tested.
 4. **Devpost:** sign in, open My projects, and resume the existing Clinic Access Navigator draft. Do not create a duplicate. Paste the description, correct track, GitHub URL, public demo-video URL and feedback. Review any teammate invitations and confirm acceptance where applicable. Complete and verify final submission; save the confirmation.
 5. **AWS (optional mini challenge):** run `aws/README.md` in authenticated CloudShell. Submit AWS Builder only after the deployed service and its role in the project are demonstrated accurately. The primary Alexa+ path need not wait for AWS: the official FAQ accepts a locally runnable repository plus a demo video.
