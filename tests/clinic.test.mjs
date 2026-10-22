@@ -59,7 +59,7 @@ test('tool error is JSON-RPC error and successful tools are structured', async (
   const invalid = await handleMcp(request(call({ name: 'find_clinic_service', arguments: null })), []);
   assert.equal((await invalid.json()).error.code, -32602);
   const result = await handleMcp(request({ jsonrpc: '2.0', id: 1, method: 'tools/list' }), []);
-  assert.equal((await result.json()).result.tools.length, 4);
+  assert.equal((await result.json()).result.tools.length, 9);
 });
 test('sample Sunday empty, branch selection and Manila Friday correct', () => {
   assert.equal(selectTool('Mactan appointment').arguments.branch, 'mactan');
@@ -87,7 +87,7 @@ test('client surfaces a failed server and never fabricates a tool result', async
 
 test('standalone server serves UI and real MCP over HTTP', async () => {
   const { createDemoServer } = await import('../scripts/local-server.mjs');
-  const server = createDemoServer();
+  const server = createDemoServer({storagePath:":memory:"});
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {

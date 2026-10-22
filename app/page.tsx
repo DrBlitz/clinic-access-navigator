@@ -1,5 +1,6 @@
 "use client";
 
+import DemoBookingPanel from "@/components/demo-booking";
 import { FormEvent, useState } from "react";
 import { AlertTriangle, CalendarDays, Check, Clock3, LoaderCircle, MapPin, Send, ShieldCheck, Sparkles, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ function formatToolResult(tool: string, value: Record<string, unknown>) {
       const [hour, minute] = String(time).split(":").map(Number);
       return new Date(2000, 0, 1, hour, minute).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
     }).join(", ") : "No openings";
-    return `Sample slots at ${String(value.branch_name)} on ${String(value.date)} (Philippine time): ${times || "No sample openings"}. These are synthetic; this demo cannot book appointments.`;
+    return `Sample slots at ${String(value.branch_name)} on ${String(value.date)} (Philippine time): ${times || "No sample openings"}. These are legacy sample hearing-test times, not reservable slots. Use the booking panel above for fictional ENT reservations.`;
   }
   if (tool === "get_visit_preparation") {
     const instructions = Array.isArray(value.instructions) ? value.instructions.join(" ") : "";
@@ -33,7 +34,7 @@ function formatToolResult(tool: string, value: Record<string, unknown>) {
 }
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "Hello. This rule-based text demo can show sample clinic services, schedules, and visit preparation. It cannot assess symptoms or book appointments. Please use fictional examples." }]);
+  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "Hello. This rule-based text demo can show sample clinic services, schedules, and visit preparation. It cannot assess symptoms. Use the booking panel above for fictional ENT reservations. Please use fictional examples." }]);
   const [trace, setTrace] = useState<{method: string; status: number; result: unknown}[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -71,9 +72,10 @@ export default function Home() {
           <div><p className="font-semibold tracking-[-0.02em]">Clinic Access Navigator</p><p className="text-sm text-slate-400">Alexa+ track · Simulated experience</p></div>
         </div>
         <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-300 sm:flex">
-          <span className="size-2 rounded-full bg-emerald-400" />Rule-based demo · synthetic data
+          <span className="size-2 rounded-full bg-emerald-400" />Rule-based demo · fictional bookings
         </div>
       </header>
+      <DemoBookingPanel />
 
       <section className="mx-auto grid w-full max-w-[1500px] gap-5 px-5 pb-8 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:px-12">
         <div className="flex min-h-[calc(100vh-116px)] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1727]/85 shadow-2xl shadow-black/25 backdrop-blur-xl">
@@ -112,8 +114,8 @@ export default function Home() {
             <p className="text-sm font-medium text-[#83b9ff]">Sample context</p>
             <h2 className="mt-1 text-xl font-semibold tracking-[-0.02em]">iHearBetterNow · Demo</h2>
             <div className="mt-5 grid gap-3">
-              <Info icon={MapPin} title="Ayala Center Cebu" detail="Demo label · branch details unverified" />
-              <Info icon={CalendarDays} title="Example Friday slots" detail="10:00 AM · 1:30 PM · 3:45 PM" />
+              <Info icon={MapPin} title="Ayala Center Cebu" detail="Sun–Thu 10 AM–9 PM · Fri–Sat 10 AM–10 PM" />
+              <Info icon={CalendarDays} title="Fictional ENT schedules" detail="A: Mon–Fri 11 AM–3 PM · B: Tue–Sat 4 PM–7 PM" />
             </div>
           </section>
           <section className="rounded-[28px] border border-white/10 bg-[#101e31]/80 p-6">

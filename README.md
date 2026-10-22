@@ -2,13 +2,13 @@
 
 [MIT licensed](LICENSE) · Alexa+ primary track · MCP 2025-11-25 / Streamable HTTP
 
-A working, rule-based clinic-access simulator with a real MCP server. It helps people explore clinic services, find branch information, inspect synthetic appointment availability, and prepare for a visit. It does not diagnose, assess urgency comprehensively, or book appointments.
+A working, rule-based clinic-access simulator with a real MCP server. It helps people explore clinic services, find branch information, inspect synthetic appointment availability, and prepare for a visit. It does not diagnose, assess urgency comprehensively, or create real clinic appointments.
 
 **Source repository:** https://github.com/DrBlitz/clinic-access-navigator
 
-**Live web demo:** https://clinic-access-navigator.janrusabello.chatgpt.site
+**Earlier demonstration video:** https://youtu.be/SDMWsx-BbPA (predates booking functionality)
 
-**Demonstration video:** https://youtu.be/SDMWsx-BbPA (captioned technical demo; prepared source runtime 2:17)
+**Live web demo:** https://clinic-access-navigator.janrusabello.chatgpt.site
 
 **MCP endpoint:** https://clinic-access-navigator.janrusabello.chatgpt.site/api/mcp
 
@@ -25,7 +25,7 @@ node scripts/local-server.mjs
 Open **http://127.0.0.1:8787** (use this exact host). This standalone review interface uses the same MCP server, routing module and client as the hosted React application. It binds only to loopback and requires no keys or AWS account. Stop with Ctrl+C.
 
 ```sh
-node --test tests/clinic.test.mjs
+node --test tests/*.test.mjs
 # With the local server running in another terminal:
 node scripts/smoke.mjs http://127.0.0.1:8787/api/mcp
 # Or validate the public deployment:
@@ -36,7 +36,7 @@ node scripts/smoke.mjs https://clinic-access-navigator.janrusabello.chatgpt.site
 
 | Input | Observable behavior |
 |---|---|
-| Ayala branch information | Returns the branch label; hours and accessibility stay explicitly unverified |
+| Ayala branch information | Returns owner-provided Ayala hours; accessibility remains unverified |
 | Mactan hearing test appointment | Shows fabricated Friday slots in Asia/Manila; no booking is made |
 | What should I bring? | Returns general demo preparation instructions |
 | Book Ayala Friday for sudden hearing loss | Shows urgent-care guidance instead of scheduling |
@@ -63,7 +63,7 @@ See [aws/README.md](aws/README.md). Region: `us-east-2`. AWS resources and usage
 
 ## Boundaries and privacy
 
-Only synthetic information is used. No patient database, recording, conversation persistence, appointment mutation, diagnosis, or clinical safety certification is provided. A small keyword guard can miss urgent phrases or over-escalate negated ones. It is not clinical triage. The application avoids body logging; hosting infrastructure may retain request metadata. The public endpoint is a read-only synthetic demonstration; production clinic data would require a separate authentication, authorization and privacy design.
+Only synthetic information is used. Fictional appointment reservations are persisted. No real patient database, recording, conversation persistence, diagnosis, or clinical safety certification is provided. A small keyword guard can miss urgent phrases or over-escalate negated ones. It is not clinical triage. The application avoids body logging; hosting infrastructure may retain request metadata. The public endpoint permits synthetic reservations and cancellation; production clinic data would require a separate authentication, authorization and privacy design.
 
 ## Submission references
 
@@ -75,3 +75,17 @@ Only synthetic information is used. No patient database, recording, conversation
 - [Finish checklist](submission/finish-checklist.md)
 
 Original project code is under MIT. Third-party dependencies and vendor files retain their own licenses. Clinic names identify the demo context and are not licensed as trademarks. This project is not an official Amazon product or a claim of Alexa+ certification.
+
+## Fictional appointment booking
+
+Use the booking panel above the chat: select doctor/date, choose an available 30-minute slot, select a fictional adult, review, then explicitly confirm. A DEMO reference and saved reservation appear. Refresh retains reservations in the same browser; cancellation releases the slot. No Google Calendar, email or SMS is connected.
+
+- ENT Doctor A: Monday–Friday, 11 AM–3 PM.
+- ENT Doctor B: Tuesday–Saturday, 4 PM–7 PM.
+- All dates/times: Asia/Manila; today through 30 days ahead, future slots only.
+- Four invented Filipino adult profiles use example.com emails; free-text patient entry is disabled.
+- Hosted storage: Sites D1. Local storage: SQLite at `.demo-data/bookings.sqlite` (ignored by Git). A random browser token scopes reservation access; this is not production patient authentication.
+- Database uniqueness prevents double booking. UUID request identifiers make confirmation retries idempotent. Cancellation is scoped to the browser token.
+- Five new MCP tools: `get_demo_booking_options`, `list_demo_slots`, `book_demo_appointment`, `list_demo_appointments`, `cancel_demo_appointment` (nine tools total).
+- The older chat availability tool remains a nonreservable illustrative hearing-test response. Use the booking panel for stateful ENT reservations.
+- The prepared AWS adapter has no booking database binding; do not claim its booking functionality is deployed.

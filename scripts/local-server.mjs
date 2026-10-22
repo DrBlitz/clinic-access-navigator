@@ -1,14 +1,18 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { createLocalBookingStore } from './local-booking-store.mjs';
 import { handleMcp } from '../lib/clinic-mcp.mjs';
-export function createDemoServer() {
+export function createDemoServer({ storagePath } = {}) {
+  const store = createLocalBookingStore(storagePath);
   const files = new Map([
     ['/', ['../demo/index.html', 'text/html']],
+    ['/modules/booking-widget.mjs', ['../lib/booking-widget.mjs','text/javascript']],
+    ['/modules/booking.mjs', ['../lib/booking.mjs','text/javascript']],
     ['/modules/clinic-client.mjs', ['../lib/clinic-client.mjs', 'text/javascript']],
     ['/modules/clinic-mcp.mjs', ['../lib/clinic-mcp.mjs', 'text/javascript']],
     ['/modules/clinic-routing.mjs', ['../lib/clinic-routing.mjs', 'text/javascript']],
   ]);
-  return createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
     const address = serverAddress(req.socket.localPort);
     if (req.headers.host !== new URL(address).host) { res.writeHead(403); res.end(); return; }
     try {
@@ -22,7 +26,7 @@ export function createDemoServer() {
         }
         const request = new Request(address + pathname, { method: req.method, headers: req.headers,
           ...(['GET', 'HEAD'].includes(req.method) ? {} : {body: Buffer.concat(chunks)}) });
-        const response = await handleMcp(request, [address]);
+        const response = await handleMcp(request, [address], store);
         res.writeHead(response.status, Object.fromEntries(response.headers));
         res.end(await response.text()); return;
       }
@@ -32,6 +36,8 @@ export function createDemoServer() {
       res.end(await readFile(new URL(path, import.meta.url)));
     } catch { res.writeHead(500); res.end('Request failed'); }
   });
+  server.on("close", () => store.close());
+  return server;
 }
 const serverAddress = port => `http://127.0.0.1:${port}`;
 if (process.argv[1] && import.meta.url === new URL('file://' + process.argv[1]).href) {

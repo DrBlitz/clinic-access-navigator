@@ -50,3 +50,5 @@ next-env.d.ts
 /samconfig.toml
 /aws-validation-receipt.json
 /submission/*-receipt.json
+
+/.demo-data/
