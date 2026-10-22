@@ -1,6 +1,6 @@
 # Devpost submission copy
 
-Prepared for the existing **Clinic Access Navigator** entry. These are draft fields, not proof of submission. The repository URL is supplied below; the public video URL is still pending.
+Prepared for the existing **Clinic Access Navigator** entry. These are draft fields, not proof of submission. Repository and video links are supplied below. Confirm the video's Public visibility and signed-out playback before submitting.
 
 ## Project name
 Clinic Access Navigator
@@ -42,7 +42,7 @@ JavaScript; TypeScript; Node.js; React; Model Context Protocol; Streamable HTTP;
 ## Links to enter
 - Live demo: https://clinic-access-navigator.janrusabello.chatgpt.site
 - GitHub repository: https://github.com/DrBlitz/clinic-access-navigator
-- Public YouTube or Vimeo video, shorter than 3 minutes: **PENDING PUBLIC UPLOAD** (a 2:17 captioned technical demonstration has been prepared)
+- Public YouTube or Vimeo video, shorter than 3 minutes: https://youtu.be/SDMWsx-BbPA (prepared source: 2:17; confirm uploaded runtime and Public visibility)
 
 ## Development window
 The recovered project records start on September 17, 2026, within the stated August 31–October 23 submission window. The finishing work adds protocol discovery, a visible exchange panel, SSE response support, independent local startup, additional tests, license, and submission documentation. This is a standalone synthetic prototype, not a claim that the existing ClinicOS product was built during the hackathon.
