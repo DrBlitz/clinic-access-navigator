@@ -1,61 +1,55 @@
 "use client";
 
 import DemoBookingPanel from "@/components/demo-booking";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useRef, useEffect } from "react";
 import { AlertTriangle, CalendarDays, Check, Clock3, LoaderCircle, MapPin, Send, ShieldCheck, Sparkles, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { selectTool } from "@/lib/clinic-routing.mjs";
+import { ClinicConversation, demoSession } from "@/lib/conversation.mjs";
 import { callClinicTool } from "@/lib/clinic-client.mjs";
 
 type Message = { role: "assistant" | "user"; text: string; tool?: string };
 
-const suggestions = ["I have ringing in my ears", "Find a hearing test this Friday", "What should I bring?", "I suddenly lost hearing"];
-
-function formatToolResult(tool: string, value: Record<string, unknown>) {
-  if (tool === "find_clinic_service") {
-    return String(value.guidance);
-  }
-  if (tool === "check_appointment_availability") {
-    const times = Array.isArray(value.available_times) ? value.available_times.map((time) => {
-      const [hour, minute] = String(time).split(":").map(Number);
-      return new Date(2000, 0, 1, hour, minute).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-    }).join(", ") : "No openings";
-    return `Sample slots at ${String(value.branch_name)} on ${String(value.date)} (Philippine time): ${times || "No sample openings"}. These are legacy sample hearing-test times, not reservable slots. Use the booking panel above for fictional ENT reservations.`;
-  }
-  if (tool === "get_visit_preparation") {
-    const instructions = Array.isArray(value.instructions) ? value.instructions.join(" ") : "";
-    return instructions;
-  }
-  if (tool === "get_branch_information")
-    return `${String(value.name)} — Hours: ${String(value.hours)} ${String(value.accessibility)}`;
-  return "I could not complete that request. Please try asking about services, schedules, branches, or visit preparation.";
-}
-
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "Hello. This rule-based text demo can show sample clinic services, schedules, and visit preparation. It cannot assess symptoms. Use the booking panel above for fictional ENT reservations. Please use fictional examples." }]);
+  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "Hello! I can help book a fictional ENT appointment at Ayala, remember your choices during this chat, and manage your demo reservations. Try “Book an ENT consultation Friday afternoon”. Use fictional patient presets only." }]);
   const [trace, setTrace] = useState<{method: string; status: number; result: unknown}[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);
 
+  const logRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if(logRef.current) logRef.current.scrollTop=logRef.current.scrollHeight; }, [messages, busy]);
+  const conversation = useRef<any>(null);
+  const sending = useRef(false);
+  const [choices, setChoices] = useState<string[]>(["Book an ENT consultation Friday afternoon", "My appointments", "Ayala branch information"]);
+
   async function sendMessage(text: string) {
     const clean = text.trim();
-    if (clean.length < 3 || busy) return;
+    if (!clean || sending.current) return;
+    sending.current = true;
     setTrace([]);
-    const tool = selectTool(clean);
+
     setMessages((current) => [...current, { role: "user", text: clean }]);
     setInput("");
     setBusy(true);
-    setActiveTool(tool.name);
+    setActiveTool("conversation");
     try {
-      const value = await callClinicTool(tool, fetch, (entry: {method: string; status: number; result: unknown}) => setTrace(current => [...current, entry])) as Record<string, unknown>;
-      setMessages((current) => [...current, { role: "assistant", text: formatToolResult(tool.name, value), tool: tool.name }]);
-    } catch {
-      setMessages((current) => [...current, { role: "assistant", text: "I could not reach the clinic access service. Please try again.", tool: "connection_error" }]);
+      if (!conversation.current) conversation.current = new ClinicConversation(async (name: string, args: any) => {
+        setActiveTool(name);
+        const result = await callClinicTool({name, arguments:args}, fetch, (entry: {method:string;status:number;result:unknown}) => setTrace(current => [...current, entry]));
+        if (name === 'book_demo_appointment' || name === 'cancel_demo_appointment') window.dispatchEvent(new Event('clinic-bookings-changed'));
+        return result;
+      }, demoSession());
+      const reply = await conversation.current.send(clean);
+      setChoices(reply.choices);
+      setMessages(current => [...current, {role:'assistant',text:reply.text}]);
+    } catch (error) {
+      setMessages(current => [...current, {role:'assistant',text: error instanceof Error ? error.message + " You can retry, choose another date, or start over. If confirmation timed out, check My appointments before starting another booking." : "The request could not be completed. Please try again.", tool:'connection_error'}]);
+      setChoices(conversation.current?.choices || ['Start over','My appointments']);
     } finally {
       setBusy(false);
+      sending.current = false;
     }
   }
 
@@ -75,35 +69,35 @@ export default function Home() {
           <span className="size-2 rounded-full bg-emerald-400" />Rule-based demo · fictional bookings
         </div>
       </header>
-      <DemoBookingPanel />
+
 
       <section className="mx-auto grid w-full max-w-[1500px] gap-5 px-5 pb-8 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:px-12">
         <div className="flex min-h-[calc(100vh-116px)] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1727]/85 shadow-2xl shadow-black/25 backdrop-blur-xl">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
             <div className="flex items-center gap-3">
               <div className="relative grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#55a4ff] to-[#6857ff]"><Sparkles className="size-5" /><span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-[#0b1727] bg-emerald-400" /></div>
-              <div><h1 className="font-semibold">Clinic assistant</h1><p className="text-sm text-slate-400">Patient access, not medical diagnosis</p></div>
+              <div><h1 className="font-semibold">Clinic assistant</h1><p className="text-sm text-slate-400">Guided booking · context lasts for this page session</p></div>
             </div>
             <ShieldCheck className="size-5 text-emerald-400" aria-label="Synthetic data only" />
           </div>
 
-          <div role="log" aria-live="polite" className="flex flex-1 flex-col justify-end gap-5 overflow-y-auto px-5 py-6 sm:px-8">
+          <div ref={logRef} role="log" aria-live="polite" className="flex max-h-[65vh] min-h-80 flex-1 flex-col gap-5 overflow-y-auto px-5 py-6 sm:px-8">
             {messages.map((message, index) => (
               <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[88%] rounded-2xl px-4 py-3 text-base leading-7 sm:max-w-[72%] ${message.role === "user" ? "rounded-br-md bg-[#2c7cff]" : "rounded-bl-md border border-white/10 bg-white/[0.06] text-slate-100"}`}>
-                  {message.text}
+                  <span className="whitespace-pre-wrap">{message.text}</span>
                   {message.tool && <div className="mt-2 flex items-center gap-1.5 border-t border-white/10 pt-2 text-xs text-slate-400">{message.tool === "connection_error" ? <AlertTriangle className="size-3.5 text-amber-300" /> : <Check className="size-3.5 text-emerald-400" />}MCP · <code>{message.tool}</code></div>}
                 </div>
               </div>
             ))}
             {busy && <div className="flex justify-start"><div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-slate-300"><LoaderCircle className="size-4 animate-spin text-[#76afff]" />Calling <code>{activeTool}</code></div></div>}
-            {messages.length === 1 && <div className="flex flex-wrap gap-2">{suggestions.map((suggestion) => <button key={suggestion} onClick={() => sendMessage(suggestion)} className="rounded-full border border-[#2c7cff]/35 bg-[#2c7cff]/10 px-4 py-2 text-sm text-[#a9ceff] transition hover:bg-[#2c7cff]/20">{suggestion}</button>)}</div>}
+            {<div className="flex flex-wrap gap-2">{choices.map((suggestion) => <button disabled={busy} key={suggestion} onClick={() => sendMessage(suggestion)} className="rounded-full border border-[#2c7cff]/35 bg-[#2c7cff]/10 px-4 py-2 text-sm text-[#a9ceff] transition hover:bg-[#2c7cff]/20">{suggestion}</button>)}</div>}
           </div>
 
           <form onSubmit={handleSubmit} className="border-t border-white/10 bg-[#081422]/70 p-4 sm:p-5">
             <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2 focus-within:border-[#3988ff]/70 focus-within:ring-4 focus-within:ring-[#3988ff]/10">
-              <Input maxLength={1000} value={input} onChange={(event) => setInput(event.target.value)} disabled={busy} placeholder="Ask about services, schedules, or visit preparation…" aria-label="Message the clinic assistant" className="h-12 border-0 bg-transparent text-base text-white shadow-none placeholder:text-slate-500 focus-visible:ring-0" />
-              <Button type="submit" size="icon" disabled={input.trim().length < 3 || busy} className="size-11 shrink-0 rounded-xl bg-[#2c7cff] text-white hover:bg-[#4b90ff] disabled:opacity-40" aria-label="Send message"><Send className="size-5" /></Button>
+              <Input maxLength={1000} value={input} onChange={(event) => setInput(event.target.value)} disabled={busy} placeholder="Book an appointment, choose a time, or view reservations…" aria-label="Message the clinic assistant" className="h-12 border-0 bg-transparent text-base text-white shadow-none placeholder:text-slate-500 focus-visible:ring-0" />
+              <Button type="submit" size="icon" disabled={input.trim().length < 1 || busy} className="size-11 shrink-0 rounded-xl bg-[#2c7cff] text-white hover:bg-[#4b90ff] disabled:opacity-40" aria-label="Send message"><Send className="size-5" /></Button>
             </div>
             <p className="mt-3 text-center text-xs leading-5 text-slate-500">Synthetic information only. This prototype does not provide emergency or diagnostic services.</p>
           </form>
@@ -121,6 +115,10 @@ export default function Home() {
           <section className="rounded-[28px] border border-white/10 bg-[#101e31]/80 p-6">
             <p className="text-sm font-medium text-slate-400">MCP tools available</p><p className="mt-1 text-xs text-slate-500">Protocol 2025-11-25 · Streamable HTTP</p>
             <div className="mt-4 grid gap-3">
+              <Tool icon={CalendarDays} label="list_demo_slots" />
+              <Tool icon={Check} label="book_demo_appointment" />
+              <Tool icon={CalendarDays} label="list_demo_appointments" />
+              <Tool icon={Check} label="cancel_demo_appointment" />
               <Tool icon={MapPin} label="get_branch_information" />
               <Tool icon={Clock3} label="check_appointment_availability" />
               <Tool icon={Check} label="get_visit_preparation" />
@@ -139,6 +137,7 @@ export default function Home() {
           </section>
         </aside>
       </section>
+      <details className="mx-auto max-w-[1500px] px-5 pb-8"><summary className="cursor-pointer py-4 text-blue-200">Prefer a form? Open the demo booking panel</summary><DemoBookingPanel /></details>
     </main>
   );
 }

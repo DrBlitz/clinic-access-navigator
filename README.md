@@ -89,3 +89,9 @@ Use the booking panel above the chat: select doctor/date, choose an available 30
 - Five new MCP tools: `get_demo_booking_options`, `list_demo_slots`, `book_demo_appointment`, `list_demo_appointments`, `cancel_demo_appointment` (nine tools total).
 - The older chat availability tool remains a nonreservable illustrative hearing-test response. Use the booking panel for stateful ENT reservations.
 - The prepared AWS adapter has no booking database binding; do not claim its booking functionality is deployed.
+
+## Conversational booking
+
+The chat now uses a deterministic English conversation controller with real MCP calls. Start with “Book an ENT consultation Friday afternoon”, choose a doctor, time and fictional patient, then explicitly confirm. It remembers your draft within the current page session. “My appointments” loads the same browser-scoped server reservations as the form. Select a reservation and confirm cancellation to release it. “Start over” clears only the unfinished conversation. Relative dates use the server-provided Philippine date; weekday names choose the next occurrence, including today. The resolved date is always shown before booking.
+
+This is guided conversational functionality, not a general-purpose LLM or Convertchat integration. Choice buttons support the accepted inputs. Reload clears conversational context but retains access to saved reservations through the browser token. Rescheduling is a guided book-new-then-cancel-old sequence, not an atomic reschedule. No Google Calendar connection is used.

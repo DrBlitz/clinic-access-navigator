@@ -6,6 +6,7 @@ export function createDemoServer({ storagePath } = {}) {
   const store = createLocalBookingStore(storagePath);
   const files = new Map([
     ['/', ['../demo/index.html', 'text/html']],
+    ['/modules/conversation.mjs', ['../lib/conversation.mjs','text/javascript']],
     ['/modules/booking-widget.mjs', ['../lib/booking-widget.mjs','text/javascript']],
     ['/modules/booking.mjs', ['../lib/booking.mjs','text/javascript']],
     ['/modules/clinic-client.mjs', ['../lib/clinic-client.mjs', 'text/javascript']],
