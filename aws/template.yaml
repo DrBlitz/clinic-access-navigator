@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Clinic Access Navigator synthetic MCP demo; authenticated access only.
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Auth:
+        DefaultAuthorizer: AWS_IAM
+        EnableIamAuthorizer: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 5
+        ThrottlingRateLimit: 2
+  ClinicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: aws/handler.handler
+      Runtime: nodejs22.x
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          ALLOWED_ORIGINS: ''
+      Events:
+        Mcp:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /mcp
+            Method: ANY
+  ClinicLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ClinicFunction}
+      RetentionInDays: 7
+Outputs:
+  Endpoint:
+    Description: Requires AWS Signature Version 4 and execute-api:Invoke permission.
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/mcp
