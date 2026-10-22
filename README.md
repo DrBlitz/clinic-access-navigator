@@ -8,6 +8,8 @@ A working, rule-based clinic-access simulator with a real MCP server. It helps p
 
 **Live web demo:** https://clinic-access-navigator.janrusabello.chatgpt.site
 
+**Demonstration video:** https://youtu.be/SDMWsx-BbPA (captioned technical demo; prepared source runtime 2:17)
+
 **MCP endpoint:** https://clinic-access-navigator.janrusabello.chatgpt.site/api/mcp
 
 The live demo runs on ChatGPT Sites. AWS Lambda/API Gateway deployment is prepared separately and is **not claimed as deployed**. No real Alexa device, microphone, Bedrock, or language model is connected. The browser chooses tools using explicit English rules, then makes actual HTTP requests. All data is synthetic; use fictional examples only.
