@@ -16,26 +16,16 @@
 
 ## Still required before submitting
 
-1. **GitHub:** create/publish a public `clinic-access-navigator` repository from the prepared source. Confirm README, LICENSE, scripts, source and lockfile are visible while signed out. The private Sites source repository is not the required GitHub link.
-2. **Video:** record the running app using `demo-script.md`, export under three minutes, upload Public to YouTube/Vimeo, and test playback signed out. A script alone does not satisfy the video requirement.
+1. **GitHub published:** https://github.com/DrBlitz/clinic-access-navigator — 123 source and documentation files published on October 22, 2026. README and MIT LICENSE were fetched back successfully. Final signed-out review remains advisable.
+2. **Video:** a 2:17 captioned technical demonstration is prepared, using captured local MCP requests/responses. It has no voiceover and is not a browser screen recording. Review it, upload Public to YouTube/Vimeo, and test playback signed out. Public upload remains pending.
 3. **Product feedback:** confirm your personal reuse assessment. Include only services actually used; keep AWS runtime claims pending until tested.
 4. **Devpost:** sign in, open My projects, and resume the existing Clinic Access Navigator draft. Do not create a duplicate. Paste the description, correct track, GitHub URL, public demo-video URL and feedback. Review any teammate invitations and confirm acceptance where applicable. Complete and verify final submission; save the confirmation.
 5. **AWS (optional mini challenge):** run `aws/README.md` in authenticated CloudShell. Submit AWS Builder only after the deployed service and its role in the project are demonstrated accurately. The primary Alexa+ path need not wait for AWS: the official FAQ accepts a locally runnable repository plus a demo video.
 
-## GitHub commands after creating an empty public repository
+## Repository status
 
-Run from the extracted project folder; replace the URL with the exact repository URL shown by GitHub. Do not commit credentials, `.env`, `.aws-sam`, SAM config, or session output.
-
-```sh
-git init
-git add .
-git commit -m "Prepare Clinic Access Navigator hackathon submission"
-git branch -M main
-git remote add origin YOUR_EXACT_GITHUB_REPOSITORY_URL
-git push -u origin main
-```
-
-If a repository already exists, inspect it and use the appropriate existing remote instead of running these initialization steps blindly. Authenticate through GitHub's supported sign-in flow; never paste tokens into chat.
+Initial source publication commit: `145ea0f65ea3442827948395608cbcde978a7b73`.
+All 13 local tests passed again before publication. A fresh hosted endpoint check timed out in this execution environment; current hosted availability was not reconfirmed by that attempt. AWS deployment and Devpost final submission remain unverified.
 
 ## Evidence to retain
 
